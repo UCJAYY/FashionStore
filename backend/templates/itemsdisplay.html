@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fashion Store - Product Grid</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .product-card {
+      transition: transform 0.3s, box-shadow 0.3s;
+      height: 100%;
+    }
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .eco-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #28a745;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="{% url 'itemsdisplay' %}">Ucjayy AI Fashion Store</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+              aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          {% if user.is_authenticated %}
+            <li class="nav-item me-2">
+              <a class="btn btn-outline-success" href="{% url 'my_recommendations' %}">My Recommendations</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-danger" href="{% url 'logout' %}">Logout</a>
+            </li>
+          {% else %}
+            <li class="nav-item me-2">
+              <a class="btn btn-outline-primary" href="{% url 'login' %}">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-primary" href="{% url 'signup' %}">Register</a>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End Navbar -->
+
+  <!-- AI Filter Form -->
+  <div class="container py-4">
+    <form method="GET" action="">
+      <div class="mb-3">
+        <label for="ai_prompt" class="form-label">AI Filter (enter a prompt):</label>
+        <input type="text" name="ai_prompt" id="ai_prompt" class="form-control" placeholder="e.g., Show me casual men's wear under $50" value="{{ ai_prompt }}">
+      </div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Apply AI Filter</button>
+        <a class="btn btn-outline-secondary" href="{% url 'itemsdisplay' %}">Reset AI Filter</a>
+      </div>
+      {% if ai_response_text %}
+        <div class="alert alert-info mt-3">
+          <strong>AI Response:</strong> {{ ai_response_text }}
+        </div>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Manual Filter Form -->
+  <div class="container py-4">
+    <form method="GET" action="">
+      <div class="row g-3">
+        <!-- Demographic Filters -->
+        <div class="col-6 col-md-4 col-lg-2">
+          <select name="ageRange" class="form-select" id="ageRange">
+            <option value="">Age Range</option>
+            <option>18-24</option>
+            <option>25-34</option>
+            <option>35-44</option>
+            <option>45+</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <select name="profession" class="form-select" id="profession">
+            <option value="">Profession</option>
+            <option>Student</option>
+            <option>Professional</option>
+            <option>Entrepreneur</option>
+            <option>Creative</option>
+            <option>Retired</option>
+          </select>
+        </div>
+        <!-- Size & Gender -->
+        <div class="col-6 col-md-4 col-lg-2">
+          <select name="size" class="form-select" id="size">
+            <option value="">Size</option>
+            <option>S</option>
+            <option>M</option>
+            <option>L</option>
+            <option>XL</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <select name="gender" class="form-select" id="gender">
+            <option value="">Gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Unisex</option>
+          </select>
+        </div>
+        <!-- Brand & Budget -->
+        <div class="col-6 col-md-4 col-lg-2">
+          <select name="brand" class="form-select" id="brand">
+            <option value="">Brand</option>
+            <option>Zara</option>
+            <option>H&M</option>
+            <option>EcoChic</option>
+            <option>UrbanStyle</option>
+            <option>LuxuryLine</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <select name="budget" class="form-select" id="budget">
+            <option value="">Budget</option>
+            <option>$0 - $50</option>
+            <option>$50 - $100</option>
+            <option>$100 - $200</option>
+            <option>$200+</option>
+          </select>
+        </div>
+        <!-- Body Type & Occasions -->
+        <div class="col-6 col-md-4 col-lg-2">
+          <select name="bodyType" class="form-select" id="bodyType">
+            <option value="">Body Type</option>
+            <option>Hourglass</option>
+            <option>Pear</option>
+            <option>Athletic</option>
+            <option>Rectangle</option>
+            <option>Petite</option>
+          </select>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <select name="occasion" class="form-select" id="occasion">
+            <option value="">Select Occasions</option>
+            <option>Work</option>
+            <option>Casual</option>
+            <option>Party</option>
+            <option>Weddings</option>
+          </select>
+        </div>
+        <!-- Action Buttons -->
+        <div class="col-12 d-flex justify-content-end gap-2">
+          <a class="btn btn-outline-secondary" href="{% url 'itemsdisplay' %}">Reset Filters</a>
+          <button class="btn btn-primary" type="submit">Apply Filters</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  
+  <!-- Product Grid -->
+  <div class="container py-5">
+    <div class="row g-4">
+      {% for item in items %}
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+        <div class="card product-card h-100 position-relative">
+          {% if item.brand == "EcoChic" %}
+          <span class="eco-badge">🌿 Eco Friendly</span>
+          {% endif %}
+          {% if item.image %}
+          <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
+          {% else %}
+          <img src="https://placehold.co/400x500" class="card-img-top" alt="{{ item.name }}">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ item.name }}</h5>
+            <p class="card-text">{{ item.description }}</p>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="h4 text-primary">${{ item.price }}</span>
+              <span class="badge bg-secondary">Size: {{ item.size }}</span>
+            </div>
+            <div class="mb-2">
+              <span class="fw-bold">Occasion:</span>
+              <span class="badge bg-info">{{ item.occasion }}</span>
+            </div>
+            <div class="d-flex justify-content-between small">
+              <div><span class="fw-bold">Brand:</span> {{ item.brand }}</div>
+              <div><span class="fw-bold">Body Type:</span> {{ item.body_type }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-center">No items available.</p>
+      {% endfor %}
+    </div>
+  </div>
+  
+  <!-- Pagination (optional) -->
+  <nav class="container pb-5">
+    <ul class="pagination justify-content-center">
+      <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+      <li class="page-item active"><a class="page-link" href="#">1</a></li>
+      <li class="page-item"><a class="page-link" href="#">2</a></li>
+      <li class="page-item"><a class="page-link" href="#">3</a></li>
+      <li class="page-item"><a class="page-link" href="#">Next</a></li>
+    </ul>
+  </nav>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
